@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rush Hour</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      body {
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .info-bar {
+        margin-top: 20px;
+      }
+
+      .info-bar div {
+        display: inline;
+      }
+
+      .level-indicator {
+        font-weight: bold;
+        font-size: 22px;
+        font-family: sans-serif;
+        margin-bottom: 20px;
+      }
+
+      .board-container {
+        padding: 35px 12px 12px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
+        border-radius: 25px;
+        background-color: lightgray;
+      }
+
+      .board {
+        position: relative;
+        width: 375px;
+        height: 375px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+        row-gap: 10px;
+        column-gap: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5),
+          inset -1px -1px 5px rgba(0, 0, 0, 0.5), 1px 1px 3px rgba(0, 0, 0, 0.5),
+          -1px -1px 3px rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+      }
+
+      @media screen and (min-width: 600px) {
+        .board-container {
+          padding: 40px 20px 20px;
+        }
+
+        .board {
+          width: 500px;
+          height: 500px;
+        }
+      }
+
+      .cell {
+        border-radius: 5px;
+        background-color: lightgray;
+        display: grid;
+        place-items: center;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), -1px -1px 1px white,
+          1px 1px 1px white inset, -1px -1px 2px rgba(0, 0, 0, 0.5) inset;
+      }
+
+      .exit {
+        position: absolute;
+        top: calc(2 * 86.66px - 7.5px);
+        right: -20px;
+        width: 26px;
+        height: 86.66px;
+        background-color: lightgray;
+      }
+
+      .label {
+        text-align: center;
+        font-family: "Arial Black", "AvenirNext-Heavy", sans-serif;
+        font-style: italic;
+        font-weight: 900;
+        filter: blur(0.4px);
+        font-size: 36px;
+        margin-top: 10px;
+        color: red;
+        opacity: 0.7;
+        text-shadow: 3px 3px 0 black;
+      }
+
+      .label span {
+        color: orange;
+      }
+
+      .car,
+      .truck {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        border-radius: 7px;
+      }
+
+      .car {
+        border-top-color: rgba(255, 255, 255, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.1);
+        border-bottom-color: rgba(0, 0, 0, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.2);
+        border-left-width: 35px;
+        border-top-width: 8px;
+        border-bottom-width: 8px;
+        border-right-width: 47px;
+        border-style: solid;
+        border-top-left-radius: 16px 12px;
+        border-bottom-left-radius: 16px 12px;
+        border-top-right-radius: 16px 12px;
+        border-bottom-right-radius: 16px 12px;
+        border-collapse: collapse;
+        box-sizing: border-box;
+      }
+
+      .car::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 80px;
+        height: calc(100%);
+        border-radius: 3px;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+        border-width: 10px;
+        border-left-width: 15px;
+        border-right-width: 20px;
+        border-style: solid;
+        border-top-color: rgba(255, 255, 255, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(0, 0, 0, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.3);
+        box-sizing: border-box;
+      }
+
+      .car.vertical {
+        border-top-color: rgba(0, 0, 0, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.1);
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.2);
+      }
+      .car.vertical::before {
+        border-top-color: rgba(0, 0, 0, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.3);
+      }
+
+      /* cab */
+      .truck::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 65px;
+        border-radius: 5px;
+        height: calc(100% - 4px);
+        box-sizing: border-box;
+        border-width: 14px;
+        border-left-width: 5px;
+        border-style: solid;
+        border-left-color: rgba(255, 255, 255, 0.3);
+        border-top-color: rgba(255, 255, 255, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(0, 0, 0, 0.3);
+        /* box-shadow: -1px -1px 6px rgba(0, 0, 0, 0.5) inset,
+          1px 1px 6px rgba(0, 0, 0, 0.5); */
+      }
+
+      /* box */
+      .truck::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: calc(100% - 72px);
+        border-radius: 5px;
+        height: calc(100% - 4px);
+        box-sizing: border-box;
+        border-width: 10px;
+        border-left-width: 5px;
+        border-right-width: 5px;
+        border-style: solid;
+        border-left-color: rgba(255, 255, 255, 0.3);
+        border-top-color: rgba(255, 255, 255, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(0, 0, 0, 0.3);
+      }
+
+      .truck.vertical::before {
+        border-top-color: rgba(0, 0, 0, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.3);
+      }
+      .truck.vertical::after {
+        border-top-color: rgba(0, 0, 0, 0.3);
+        border-right-color: rgba(0, 0, 0, 0.3);
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .car.red,
+      .truck.red {
+        background-color: red;
+      }
+      .car.lightgreen,
+      .truck.lightgreen {
+        background-color: lightgreen;
+      }
+      .car.yellow,
+      .truck.yellow {
+        background-color: yellow;
+      }
+      .car.lightpurple,
+      .truck.lightpurple {
+        background-color: violet;
+      }
+      .car.purple,
+      .truck.purple {
+        background-color: purple;
+      }
+      .car.blue,
+      .truck.blue {
+        background-color: blue;
+      }
+      .car.lightblue,
+      .truck.lightblue {
+        background-color: lightblue;
+      }
+      .car.green,
+      .truck.green {
+        background-color: green;
+      }
+      .car.cyan,
+      .truck.cyan {
+        background-color: cyan;
+      }
+      .car.orange,
+      .truck.orange {
+        background-color: tomato;
+      }
+      .car.pink,
+      .truck.pink {
+        background-color: pink;
+      }
+      .car.black,
+      .truck.black {
+        background-color: black;
+      }
+      .car.brown,
+      .truck.brown {
+        background-color: brown;
+      }
+
+      /* sizes */
+      .car,
+      .truck {
+        height: calc(100% / 6 - 2.5px);
+        width: calc(100% / 6 - 2.5px);
+      }
+
+      .car.horizontal,
+      .car.vertical {
+        width: calc(2 * 100% / 6 - 5px);
+      }
+
+      .truck.horizontal,
+      .truck.vertical {
+        width: calc(3 * 100% / 6 - 5px);
+      }
+
+      .car.vertical {
+        transform-origin: 25% 50%;
+        transform: rotate(90deg);
+      }
+      .truck.vertical {
+        transform-origin: 16.66% 50%;
+        transform: rotate(90deg);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="board-container">
+        <div class="board">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="exit"></div>
+        </div>
+        <div class="label">RUSH<span>HOUR</span></div>
+      </div>
+      <div class="info-bar">
+        <button class="prev">prev</button>
+        <div class="level-indicator">Level: <output></output> / 101</div>
+        <button class="next">next</button>
+      </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/0.6.0/fastclick.min.js"></script>
+    <script>
+      console.log("fasclick 1");
+      if ("addEventListener" in document) {
+        console.log("fasclick 2");
+        document.addEventListener(
+          "DOMContentLoaded",
+          function () {
+            console.log("fasclick 3");
+            FastClick.attach(document.body);
+          },
+          false
+        );
+      }
+
+      const rushHour = async () => {
+        const SAVE_KEY = "RUSH_HOUR_LEVEL";
+
+        const result = await fetch("puzzles.txt");
+        const _rawPuzzles = await result.text();
+        const rawPuzzles = _rawPuzzles.split("\n").filter((p) => p.length > 0);
+
+        const getColorFromID = (carID) => {
+          switch (carID) {
+            case "A":
+              return "red";
+            case "B":
+              return "lightgreen";
+            case "C":
+              return "yellow";
+            case "D":
+              return "lightpurple";
+            case "E":
+              return "purple";
+            case "F":
+              return "blue";
+            case "G":
+              return "lightblue";
+            case "H":
+              return "green";
+            case "I":
+              return "cyan";
+            case "J":
+              return "orange";
+            case "K":
+              return "pink";
+            case "L":
+              return "black";
+            case "M":
+              return "brown";
+            case "N":
+              return "lightbrown";
+            default:
+              throw "Unknown colour for car ID: " + carID;
+          }
+        };
+
+        const parse = (puzzle) => {
+          const rawData = puzzle.split(" ")[1];
+
+          // Keep track of which cars we've placed, by carID
+          const cars = {};
+
+          for (let i = 0; i < rawData.length; ++i) {
+            const y = Math.floor(i / 6);
+            const x = i % 6;
+
+            // If it's not an empty space...
+            if (rawData[i] !== "o") {
+              // ...it's a piece of a car
+
+              // If we haven't seen it yet, add it to the list
+              if (!cars[rawData[i]]) {
+                cars[rawData[i]] = {
+                  position: { x, y },
+                  size: 1,
+                  orientation:
+                    i !== 5 && rawData[i] === rawData[i + 1]
+                      ? "horizontal"
+                      : "vertical",
+                };
+              } else {
+                // Else, update it
+                cars[rawData[i]].size++;
+              }
+            }
+          }
+
+          const puzzleData = [];
+          for (let carID in cars) {
+            const data = cars[carID];
+            puzzleData.push({
+              type: data.size === 3 ? "truck" : "car",
+              orientation: data.orientation,
+              color: getColorFromID(carID),
+              position: data.position,
+            });
+          }
+
+          return puzzleData;
+        };
+
+        const puzzleList = rawPuzzles.map(parse);
+
+        const boardEl = document.querySelector(".board");
+        const cellEls = document.querySelectorAll(".cell");
+        cellEls.forEach((cellEl) =>
+          cellEl.addEventListener("dragstart", (e) => e.preventDefault())
+        );
+        const levelIndicatorEl = document.querySelector(
+          ".level-indicator output"
+        );
+        let currentLevelIndex = 0;
+
+        try {
+          // Load the game
+          const savedLevelIndex = localStorage.getItem(SAVE_KEY);
+          console.log("aaaaaa", savedLevelIndex);
+          if (savedLevelIndex && !Number.isNaN(savedLevelIndex)) {
+            currentLevelIndex = parseInt(savedLevelIndex);
+          }
+        } catch (_) {
+          // Just fail silently if we couldn't load
+        }
+
+        const tempButton = document.querySelector("button.next");
+        tempButton.addEventListener("click", () => {
+          nextLevel();
+        });
+
+        const tempButton2 = document.querySelector("button.prev");
+        tempButton2.addEventListener("click", () => {
+          previousLevel();
+        });
+
+        const BOARD_PADDING = 5;
+
+        // max sketch
+        const boardSize =
+          boardEl.getBoundingClientRect().width +
+          2 *
+            Number.parseInt(
+              window.getComputedStyle(boardEl, null).getPropertyValue("padding")
+            );
+
+        const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+        // Given a cell index, give back the screen offset coordinates relative corner of the board
+        const getCellOffset = (index) => {
+          return (boardSize / 6) * index - 5 * (index - 1);
+        };
+
+        const getNearestCellIndex = (offset) => {
+          const decimalIndex = offset / (boardSize / 6);
+          const smallerIndex = Math.floor(decimalIndex);
+          const biggerIndex = Math.ceil(decimalIndex);
+
+          if (decimalIndex - smallerIndex < biggerIndex - decimalIndex) {
+            return smallerIndex;
+          } else {
+            return biggerIndex;
+          }
+        };
+
+        const isInLane = (laneIndex, vehicle, orientation) => {
+          const vehicleSize = vehicle.type === "truck" ? 3 : 2;
+
+          if (orientation !== vehicle.orientation) {
+            const n =
+              laneIndex -
+              vehicle.position[orientation === "horizontal" ? "y" : "x"];
+            return n < vehicleSize && n >= 0;
+          } else {
+            return (
+              laneIndex ===
+              vehicle.position[orientation === "horizontal" ? "y" : "x"]
+            );
+          }
+        };
+
+        /**
+         * Returns the coordinates in your lane that are occupied,
+         * either by the board wall or other vehicles
+         */
+        const findVehicleBounds = (vehicle, puzzle) => {
+          // Figure out what lane the vehicle is in
+          const laneIndex =
+            vehicle.position[vehicle.orientation === "horizontal" ? "y" : "x"];
+
+          // Figure out which other vehicles intersect with that row
+          const laneVehicleOffsets = puzzle.reduce(
+            (list, currentVehicle, index) => {
+              // Early return to avoid saying you collide with yourself
+              if (currentVehicle === vehicle) {
+                return list;
+              }
+
+              if (isInLane(laneIndex, currentVehicle, vehicle.orientation)) {
+                if (vehicle.orientation !== currentVehicle.orientation) {
+                  list.push(
+                    currentVehicle.position[
+                      vehicle.orientation === "horizontal" ? "x" : "y"
+                    ]
+                  );
+                } else {
+                  // If the vehicle is above or to the left of you, we should offset the coord by the vehicle's length
+                  if (
+                    currentVehicle.position.x < vehicle.position.x ||
+                    currentVehicle.position.y < vehicle.position.y
+                  ) {
+                    list.push(
+                      currentVehicle.position[
+                        vehicle.orientation === "horizontal" ? "x" : "y"
+                      ] + (currentVehicle.type === "truck" ? 2 : 1)
+                    );
+                  } else {
+                    list.push(
+                      currentVehicle.position[
+                        vehicle.orientation === "horizontal" ? "x" : "y"
+                      ]
+                    );
+                  }
+                }
+                return list;
+              } else {
+                return list;
+              }
+            },
+            []
+          );
+
+          // Get the min coord ahead of your vehicle
+          const offsetsAhead = laneVehicleOffsets.filter(
+            (o) =>
+              o >
+              (vehicle.orientation === "horizontal"
+                ? vehicle.position.x
+                : vehicle.position.y)
+          );
+          const boundAhead =
+            offsetsAhead.length === 0
+              ? 6
+              : Math.min(...offsetsAhead.map((n) => n));
+
+          // Get the max coord behind your vehicle
+          const offsetsBehind = laneVehicleOffsets.filter(
+            (o) =>
+              o <
+              (vehicle.orientation === "horizontal"
+                ? vehicle.position.x
+                : vehicle.position.y)
+          );
+          const boundBehind =
+            offsetsBehind.length === 0 ? -1 : Math.max(...offsetsBehind);
+
+          // Special case for the red car in lane 2!
+          if (
+            vehicle.orientation === "horizontal" &&
+            vehicle.position.y === 2 &&
+            boundAhead === 6
+          ) {
+            return [boundBehind, 9];
+          }
+
+          // These are the bounds
+          return [boundBehind, boundAhead];
+        };
+
+        const nextLevel = () => {
+          // If there are more levels
+          if (puzzleList.length > currentLevelIndex + 1) {
+            // Advance to the next level
+            currentLevelIndex += 1;
+            // Attempt to save their progress
+            localStorage.setItem(SAVE_KEY, currentLevelIndex);
+            layoutPuzzle();
+          } else {
+            // Tell them they win at life
+          }
+        };
+
+        const previousLevel = () => {
+          if (currentLevelIndex > 0) {
+            currentLevelIndex -= 1;
+            localStorage.setItem(SAVE_KEY, currentLevelIndex);
+            layoutPuzzle();
+          }
+        };
+
+        const layoutPuzzle = () => {
+          // Clear the board
+          document
+            .querySelectorAll(".car, .truck")
+            .forEach((oldVehicleEl) => oldVehicleEl.remove());
+
+          const puzzle = JSON.parse(
+            JSON.stringify(puzzleList[currentLevelIndex])
+          );
+
+          puzzle.forEach((vehicle) => {
+            const vehicleEl = document.createElement("div");
+            vehicleEl.classList.add(vehicle.orientation);
+            vehicleEl.classList.add(vehicle.color);
+            vehicleEl.classList.add(vehicle.type);
+
+            vehicleEl.setAttribute("draggable", false);
+
+            vehicleEl.style.left = getCellOffset(vehicle.position.x) + "px";
+            vehicleEl.style.top = getCellOffset(vehicle.position.y) + "px";
+
+            const startDragging = (e) => {
+              if (e.type === "pointerdown") {
+                // Prevent the browser default drag behaviour on a desktop
+                vehicleEl.ondragstart = (e) => e.preventDefault();
+              } else {
+                // e.preventDefault();
+              }
+
+              const vehicleBoundingBox = vehicleEl.getBoundingClientRect();
+              const boardBoundingBox = boardEl.getBoundingClientRect();
+
+              // Find the indices of the dragging bounds
+              const bounds = findVehicleBounds(vehicle, puzzle);
+
+              const shiftX = e.clientX - vehicleBoundingBox.left;
+              const shiftY = e.clientY - vehicleBoundingBox.top;
+
+              moveAt(e.pageX, e.pageY);
+
+              function onMouseMove(event) {
+                moveAt(event.pageX, event.pageY);
+              }
+
+              function moveAt(pageX, pageY) {
+                const vehicleSize = vehicle.type === "truck" ? 3 : 2;
+
+                if (vehicle.orientation === "horizontal") {
+                  const newLeft = pageX - boardBoundingBox.left - shiftX;
+                  const boundedNewLeft = clamp(
+                    newLeft,
+                    getCellOffset(bounds[0] + 1),
+                    getCellOffset(bounds[1]) -
+                      getCellOffset(vehicleSize) +
+                      BOARD_PADDING
+                  );
+                  vehicleEl.style.left = boundedNewLeft + "px";
+                }
+
+                if (vehicle.orientation === "vertical") {
+                  const newTop = pageY - boardBoundingBox.top - shiftY;
+                  const boundedNewTop = clamp(
+                    newTop,
+                    getCellOffset(bounds[0] + 1),
+                    getCellOffset(bounds[1]) -
+                      getCellOffset(vehicleSize) +
+                      BOARD_PADDING
+                  );
+                  vehicleEl.style.top = boundedNewTop + "px";
+                }
+              }
+
+              document.addEventListener("pointermove", onMouseMove);
+              // document.addEventListener("touchmove", onMouseMove);
+              document.addEventListener("pointerup", onMouseUp);
+              // document.addEventListener("touchend", onMouseUp);
+
+              function onMouseUp(e) {
+                // Find the offset from the top left corner of the board
+                const offsetX = e.pageX - boardBoundingBox.left - shiftX;
+                const offsetY = e.pageY - boardBoundingBox.top - shiftY;
+
+                const vehicleSize = vehicle.type === "truck" ? 3 : 2;
+
+                // Get the nearest index from that offset
+                if (vehicle.orientation === "vertical") {
+                  const nearestIndex = clamp(
+                    getNearestCellIndex(offsetY),
+                    bounds[0] + 1,
+                    bounds[1] - vehicleSize
+                  );
+                  const snapOffset = getCellOffset(nearestIndex);
+                  vehicle.position.y = nearestIndex;
+                  vehicleEl.style.top = snapOffset + "px";
+                } else {
+                  const nearestIndex = clamp(
+                    getNearestCellIndex(offsetX),
+                    bounds[0] + 1,
+                    bounds[1] - vehicleSize
+                  );
+                  const snapOffset = getCellOffset(nearestIndex);
+                  vehicle.position.x = nearestIndex;
+                  vehicleEl.style.left = snapOffset + "px";
+                }
+
+                // Determine if we've won
+                if (
+                  vehicle.position.y === 2 &&
+                  vehicle.position.x >= 5 &&
+                  vehicle.color === "red"
+                ) {
+                  nextLevel();
+                } else {
+                  // TODO: Do the vehicle snapping over here instead if we'd like to animate it
+                }
+
+                // Housekeeping
+                document.removeEventListener("pointermove", onMouseMove);
+                document.removeEventListener("pointerup", onMouseUp);
+                // document.removeEventListener("touchmove", onMouseMove);
+                // document.removeEventListener("touchend", onMouseUp);
+              }
+            };
+
+            vehicleEl.addEventListener("pointerdown", startDragging);
+            // vehicleEl.addEventListener("touchstart", startDragging);
+
+            boardEl.appendChild(vehicleEl);
+          });
+
+          // Update the level number indicator
+          levelIndicatorEl.innerHTML = currentLevelIndex + 1;
+        };
+
+        layoutPuzzle();
+      };
+
+      rushHour();
+    </script>
+  </body>
+</html>
