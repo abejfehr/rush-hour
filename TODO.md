@@ -1,14 +1,11 @@
 # Rush Hour Game
 
-- make dragging work on iOS
-- put it on github
-- animate red car exiting
 - add a tutorial or instructions
 - make cars look nicer
-- style the exit better
-  - like this maybe: https://www.researchgate.net/profile/Mads-Haahr/publication/333226463/figure/fig4/AS:760838797414403@1558409513560/Screenshot-from-Rush-Hour-1996_Q320.jpg
-- make something better happen once the game is beaten
-- rename the levels file and document how I got it
+- animate the red car when it exits
+- make something better happen once the game is fully beaten
+- make it more performant for iOS
+- fix exit being overtop of the red car
 
 nice to have
 
