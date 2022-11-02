@@ -1,0 +1,121 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      :root {
+        --vehicle-color: red;
+        --shadow-top: rgba(255, 255, 255, 0.5);
+        --shadow-right: rgba(0, 0, 0, 0.3);
+        --shadow-bottom: rgba(0, 0, 0, 0.5);
+        --shadow-left: rgba(255, 255, 255, 0.8);
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        padding: 0;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        place-items: center;
+
+        background-color: lightgray;
+      }
+      .car {
+        width: 400px;
+        height: 200px;
+        background-color: transparent;
+        position: relative;
+      }
+      .truck {
+        width: 600px;
+        height: 200px;
+        background-color: transparent;
+        position: relative;
+      }
+      /* body */
+      .car::before {
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: var(--vehicle-color);
+        border-top-color: var(--shadow-top);
+        border-right-color: var(--shadow-right);
+        border-bottom-color: var(--shadow-bottom);
+        border-left-color: var(--shadow-left);
+        border-width: 14px;
+        border-radius: 15px;
+        border-style: solid;
+        box-sizing: border-box;
+      }
+      /* cab */
+      .car::after {
+        content: "";
+        position: absolute;
+        height: 35%;
+        width: 90%;
+        left: 5%;
+        bottom: 35%;
+        border-radius: 15px;
+        background-color: var(--vehicle-color);
+        border-top-color: var(--shadow-top);
+        border-right-color: var(--shadow-right);
+        border-bottom-color: var(--shadow-bottom);
+        border-left-color: var(--shadow-left);
+        border-width: 25px;
+        border-style: solid;
+        box-sizing: border-box;
+      }
+      /* box */
+      .truck::before {
+        content: "";
+        position: absolute;
+        height: 80%;
+        width: 100%;
+        background-color: var(--vehicle-color);
+        border-top-color: var(--shadow-top);
+        border-right-color: var(--shadow-right);
+        border-bottom-color: var(--shadow-bottom);
+        border-left-color: var(--shadow-left);
+        border-width: 24px;
+        border-radius: 15px;
+        border-style: solid;
+        box-sizing: border-box;
+      }
+      /* cab */
+      .truck::after {
+        content: "";
+        position: absolute;
+        top: 80%;
+        height: 20%;
+        width: 90%;
+        left: 5%;
+        background-color: var(--vehicle-color);
+        border-top-color: var(--shadow-top);
+        border-right-color: var(--shadow-right);
+        border-bottom-color: var(--shadow-bottom);
+        border-left-color: var(--shadow-left);
+        border-width: 20px;
+        border-bottom-width: 25px;
+        border-top-width: 7px;
+        border-radius: 15px;
+        border-style: solid;
+        box-sizing: border-box;
+      }
+
+      .truck.vertical,
+      .car.vertical {
+        transform: rotate(-90deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="car vertical"></div>
+    <div class="truck"></div>
+  </body>
+</html>

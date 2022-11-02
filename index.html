@@ -227,6 +227,8 @@
 
       .exit {
         width: 20px;
+        grid-row-start: 3;
+        grid-row-end: 3;
         height: calc(100% + 20px);
         margin-top: -10px;
         display: grid;
@@ -245,9 +247,6 @@
         letter-spacing: 8px;
         transform: rotate(-90deg) translateY(-133%);
         text-align: center;
-      }
-
-      .exit::before {
       }
 
       .label {
@@ -343,8 +342,6 @@
         border-top-color: rgba(255, 255, 255, 0.3);
         border-right-color: rgba(0, 0, 0, 0.3);
         border-bottom-color: rgba(0, 0, 0, 0.3);
-        /* box-shadow: -1px -1px 6px rgba(0, 0, 0, 0.5) inset,
-          1px 1px 6px rgba(0, 0, 0, 0.5); */
       }
 
       /* box */
@@ -522,15 +519,13 @@
               <div class="chevron"></div>
             </div>
           </div>
-          <div class="vehicles"></div>
           <div class="board-shadow"></div>
           <div class="exit-container">
-            <div></div>
-            <div></div>
             <div class="exit">
               <div class="exit-text">EXIT</div>
             </div>
           </div>
+          <div class="vehicles"></div>
         </div>
         <div class="label">RUSH<span>HOUR</span></div>
       </div>
