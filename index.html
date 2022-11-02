@@ -466,6 +466,15 @@
         width: 100%;
         height: 100%;
       }
+
+      .info-bar .prev,
+      .info-bar .next {
+        display: none;
+      }
+      .development .info-bar .prev,
+      .development .info-bar .next {
+        display: inline;
+      }
     </style>
   </head>
   <body>
@@ -532,6 +541,10 @@
       </div>
     </main>
     <script>
+      if (window.location.href.includes("localhost")) {
+        document.body.classList.add("development");
+      }
+
       const rushHour = async () => {
         const SAVE_KEY = "RUSH_HOUR_LEVEL";
 
