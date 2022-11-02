@@ -48,6 +48,10 @@
         background-color: lightgray;
       }
 
+      .board-container * {
+        user-select: none;
+      }
+
       .board {
         position: relative;
         width: 375px;
@@ -63,8 +67,8 @@
       }
 
       .board-shadow {
-        content: "";
         position: absolute;
+        border-radius: 1px;
         top: 0;
         left: 0;
         width: 100%;
@@ -72,7 +76,119 @@
         border: 1px solid gray;
         box-shadow: inset 3px 3px 15px 0px rgba(0, 0, 0, 0.8);
         pointer-events: none;
-        /* background-color: rgba(0, 0, 0, 0.5); */
+      }
+
+      .tutorial-board {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-rows: repeat(6, 1fr);
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      .tutorial-grid {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        font-family: sans-serif;
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      @keyframes red-car-chevron {
+        0% {
+          transform: translateX(-20%);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(40%);
+          opacity: 0;
+        }
+      }
+
+      @keyframes green-truck-chevron {
+        0% {
+          transform: translateY(-10%);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(40%);
+          opacity: 0;
+        }
+      }
+
+      .active-tutorial.level-1,
+      .active-tutorial.level-2b {
+        grid-column-start: 1;
+        grid-column-end: 7;
+        grid-row-start: 3;
+        grid-row-end: 3;
+      }
+
+      .active-tutorial.level-2a {
+        grid-column-start: 5;
+        grid-column-end: 5;
+        grid-row-start: 1;
+        grid-row-end: 7;
+      }
+
+      .active-tutorial.level-1 .chevron,
+      .active-tutorial.level-2b .chevron {
+        display: block;
+        animation: red-car-chevron 3s ease-out infinite;
+      }
+
+      .active-tutorial.level-2a .chevron {
+        display: block;
+        animation: green-truck-chevron 3s ease-out infinite;
+      }
+
+      .chevron {
+        display: none;
+        height: 100%;
+        width: 100%;
+      }
+      .chevron::before {
+        content: "";
+        height: calc(50% - 5px);
+        width: 20px;
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        background-color: red;
+        transform: skewX(35deg);
+      }
+      .chevron::after {
+        content: "";
+        height: calc(50% - 5px);
+        width: 20px;
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        background-color: red;
+        transform: skewX(-35deg);
+      }
+
+      .level-2a .chevron::before {
+        height: 20px;
+        width: calc(50% - 5px);
+        left: 5px;
+        top: 50%;
+        background-color: green;
+        transform: skewY(35deg);
+      }
+
+      .level-2a .chevron::after {
+        height: 20px;
+        width: calc(50% - 5px);
+        right: 5px;
+        top: 50%;
+        background-color: green;
+        transform: skewY(-35deg);
       }
 
       @media screen and (min-width: 600px) {
@@ -392,6 +508,11 @@
           <div class="cell"></div>
           <div class="cell"></div>
           <div class="cell"></div>
+          <div class="tutorial-board">
+            <div class="tutorial-grid">
+              <div class="chevron"></div>
+            </div>
+          </div>
           <div class="vehicles"></div>
           <div class="board-shadow"></div>
           <div class="exit-container">
@@ -694,6 +815,23 @@
             JSON.stringify(puzzleList[currentLevelIndex])
           );
 
+          document
+            .querySelectorAll(".active-tutorial")
+            .forEach((el) =>
+              el.classList.remove("active-tutorial", "level-1", "level-2a")
+            );
+
+          if (currentLevelIndex === 0) {
+            document
+              .querySelector(".tutorial-grid")
+              .classList.add("active-tutorial", "level-1");
+          }
+          if (currentLevelIndex === 1) {
+            document
+              .querySelector(".tutorial-grid")
+              .classList.add("active-tutorial", "level-2a");
+          }
+
           puzzle.forEach((vehicle) => {
             const vehicleEl = document.createElement("div");
             vehicleEl.classList.add(vehicle.orientation);
@@ -702,8 +840,15 @@
 
             vehicleEl.setAttribute("draggable", false);
 
-            vehicleEl.style.left = getCellOffset(vehicle.position.x) + "px";
-            vehicleEl.style.top = getCellOffset(vehicle.position.y) + "px";
+            vehicleEl.style.left = 0;
+            vehicleEl.style.top = 0;
+            vehicleEl.style.transform = `translate(${getCellOffset(
+              vehicle.position.x
+            )}px, ${getCellOffset(vehicle.position.y)}px) rotate(${
+              vehicle.orientation === "vertical" ? 90 : 0
+            }deg)`;
+            // vehicleEl.style.left = getCellOffset(vehicle.position.x) + "px";
+            // vehicleEl.style.top = getCellOffset(vehicle.position.y) + "px";
 
             const startDragging = (e) => {
               if (e.type === "pointerdown") {
@@ -740,7 +885,12 @@
                       getCellOffset(vehicleSize) +
                       BOARD_PADDING
                   );
-                  vehicleEl.style.left = boundedNewLeft + "px";
+                  // vehicleEl.style.left = boundedNewLeft + "px";
+                  vehicleEl.style.transform = `translate(${boundedNewLeft}px, ${getCellOffset(
+                    vehicle.position.y
+                  )}px) rotate(${
+                    vehicle.orientation === "vertical" ? 90 : 0
+                  }deg)`;
                 }
 
                 if (vehicle.orientation === "vertical") {
@@ -752,7 +902,11 @@
                       getCellOffset(vehicleSize) +
                       BOARD_PADDING
                   );
-                  vehicleEl.style.top = boundedNewTop + "px";
+                  vehicleEl.style.transform = `translate(${getCellOffset(
+                    vehicle.position.x
+                  )}px, ${boundedNewTop}px) rotate(${
+                    vehicle.orientation === "vertical" ? 90 : 0
+                  }deg)`;
                 }
               }
 
@@ -777,7 +931,11 @@
                   );
                   const snapOffset = getCellOffset(nearestIndex);
                   vehicle.position.y = nearestIndex;
-                  vehicleEl.style.top = snapOffset + "px";
+                  vehicleEl.style.transform = `translate(${getCellOffset(
+                    vehicle.position.x
+                  )}px, ${getCellOffset(vehicle.position.y)}px) rotate(${
+                    vehicle.orientation === "vertical" ? 90 : 0
+                  }deg)`;
                 } else {
                   const nearestIndex = clamp(
                     getNearestCellIndex(offsetX),
@@ -786,7 +944,23 @@
                   );
                   const snapOffset = getCellOffset(nearestIndex);
                   vehicle.position.x = nearestIndex;
-                  vehicleEl.style.left = snapOffset + "px";
+                  vehicleEl.style.transform = `translate(${getCellOffset(
+                    vehicle.position.x
+                  )}px, ${getCellOffset(vehicle.position.y)}px) rotate(${
+                    vehicle.orientation === "vertical" ? 90 : 0
+                  }deg)`;
+                }
+
+                // If we're on level 2 and we just put the truck into a particular position, swap the tutorials
+                if (
+                  currentLevelIndex === 1 &&
+                  vehicle.type === "truck" &&
+                  vehicle.position.y === 3
+                ) {
+                  // Swap the tutorials and show the car instead
+                  const tutorial = document.querySelector(".level-2a");
+                  tutorial.classList.remove("level-2a");
+                  tutorial.classList.add("level-2b");
                 }
 
                 // Determine if we've won
@@ -795,6 +969,8 @@
                   vehicle.position.x >= 5 &&
                   vehicle.color === "red"
                 ) {
+                  // If we're on level 1, disable the lvl-1 tutorial
+
                   nextLevel();
                 } else {
                   // TODO: Do the vehicle snapping over here instead if we'd like to animate it
